@@ -29,30 +29,29 @@ export default function FileStorageStatus() {
 
   const { habits, areas, entries, onDataChange, loadData } = useHabits();
 
-  // Ref to track if initial save has been done after connecting
-  const initialSaveRef = useRef(false);
+  // Ref to track if we've done initial setup
+  const isSubscribedRef = useRef(false);
 
   // Subscribe to data changes and auto-save
   useEffect(() => {
-    if (status !== 'connected') return;
+    if (status !== 'connected' && status !== 'saving') {
+      isSubscribedRef.current = false;
+      return;
+    }
+
+    // Only subscribe once when connected
+    if (isSubscribedRef.current) return;
+    isSubscribedRef.current = true;
 
     const unsubscribe = onDataChange((h, a, e) => {
       saveData(h, a, e);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      isSubscribedRef.current = false;
+    };
   }, [status, onDataChange, saveData]);
-
-  // Do initial save when first connecting (if we have data)
-  useEffect(() => {
-    if (status === 'connected' && !initialSaveRef.current && habits.length > 0) {
-      saveData(habits, areas, entries);
-      initialSaveRef.current = true;
-    }
-    if (status !== 'connected') {
-      initialSaveRef.current = false;
-    }
-  }, [status, habits, areas, entries, saveData]);
 
   // Handle opening existing file and loading data
   const handleOpenExisting = async () => {

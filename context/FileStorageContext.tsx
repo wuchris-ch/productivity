@@ -47,6 +47,7 @@ export function FileStorageProvider({ children }: { children: React.ReactNode })
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileHandleRef = useRef<FileSystemFileHandle | null>(null);
+  const isSavingRef = useRef(false);
 
   // Check for stored file handle on mount
   useEffect(() => {
@@ -167,11 +168,13 @@ export function FileStorageProvider({ children }: { children: React.ReactNode })
     areas: Area[],
     entries: HabitEntry[]
   ): Promise<boolean> => {
-    if (!fileHandleRef.current || status !== 'connected') {
+    // Prevent concurrent saves and check we have a file handle
+    if (!fileHandleRef.current || isSavingRef.current) {
       return false;
     }
 
     try {
+      isSavingRef.current = true;
       setStatus('saving');
       const data = createExportData(habits, areas, entries);
       await writeToFile(fileHandleRef.current, data);
@@ -183,8 +186,10 @@ export function FileStorageProvider({ children }: { children: React.ReactNode })
       setError((err as Error).message);
       setStatus('error');
       return false;
+    } finally {
+      isSavingRef.current = false;
     }
-  }, [status]);
+  }, []);
 
   return (
     <FileStorageContext.Provider
