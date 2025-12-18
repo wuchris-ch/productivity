@@ -161,6 +161,20 @@ export async function readFromFile(
   }
 }
 
+// Format date in Pacific Time
+function formatPacificTime(date: Date): string {
+  return date.toLocaleString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  });
+}
+
 // Create export data structure
 export function createExportData(
   habits: Habit[],
@@ -169,7 +183,7 @@ export function createExportData(
 ): HabitData {
   return {
     version: 1,
-    exportedAt: new Date().toISOString(),
+    exportedAt: formatPacificTime(new Date()),
     habits,
     areas,
     entries,

@@ -11,7 +11,13 @@ function formatTimeAgo(date: Date): string {
   if (seconds < 5) return 'just now';
   if (seconds < 60) return `${seconds}s ago`;
   if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
-  return `${Math.floor(seconds / 3600)}h ago`;
+
+  // For older times, show actual time in Pacific
+  return date.toLocaleTimeString('en-US', {
+    timeZone: 'America/Los_Angeles',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
 }
 
 export default function FileStorageStatus() {
