@@ -93,7 +93,7 @@ export default function HabitCardCalendar({ habit }: HabitCardCalendarProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-white/5">
-        <Link href={`/habit/${habit.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+        <Link href={`/habit?id=${habit.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div
             className="w-3 h-8 rounded-full"
             style={{ backgroundColor: habit.color }}

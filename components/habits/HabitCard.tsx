@@ -127,7 +127,7 @@ export default function HabitCard({ habit, isDragging }: HabitCardProps) {
 
         {/* Habit Info */}
         <Link
-          href={`/habit/${habit.id}`}
+          href={`/habit?id=${habit.id}`}
           className="flex-1 min-w-0 hover:opacity-80 transition-opacity"
         >
           <h4 className="font-medium text-gray-900 dark:text-white truncate">{habit.name}</h4>

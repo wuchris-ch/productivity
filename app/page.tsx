@@ -8,6 +8,7 @@ import QuickView from '@/components/views/QuickView';
 import CalendarView from '@/components/views/CalendarView';
 import CreateHabitModal from '@/components/habits/CreateHabitModal';
 import AreaManager from '@/components/areas/AreaManager';
+import FileStorageStatus from '@/components/ui/FileStorageStatus';
 import { ViewMode } from '@/lib/types';
 
 export default function HomePage() {
@@ -24,7 +25,10 @@ export default function HomePage() {
       <header className="border-b border-gray-200 dark:border-white/5 sticky top-0 bg-white/80 dark:bg-black/80 backdrop-blur-xl z-40">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Habit Tracker</h1>
+            <div className="flex items-center gap-4">
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">Habit Tracker</h1>
+              <FileStorageStatus />
+            </div>
 
             <div className="flex items-center gap-3">
               <Toggle

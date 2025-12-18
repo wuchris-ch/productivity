@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { useRouter, useParams } from 'next/navigation';
+import { useState, useMemo, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -30,9 +30,9 @@ const COLORS = [
   '#8b5cf6', '#a855f7', '#d946ef', '#ec4899',
 ];
 
-export default function HabitDetailPage() {
-  const params = useParams();
-  const id = params.id as string;
+function HabitDetailContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const router = useRouter();
   const { habits, areas, entries, updateHabit, deleteHabit, toggleEntry, getEntryStatus } = useHabits();
 
@@ -472,5 +472,17 @@ export default function HabitDetailPage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function HabitDetailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-black">
+        <div className="animate-pulse text-gray-500 dark:text-white/50">Loading...</div>
+      </div>
+    }>
+      <HabitDetailContent />
+    </Suspense>
   );
 }

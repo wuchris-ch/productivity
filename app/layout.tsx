@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { HabitProvider } from "@/context/HabitContext";
+import { FileStorageProvider } from "@/context/FileStorageContext";
 
 export const metadata: Metadata = {
   title: "Habit Tracker",
@@ -16,7 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="antialiased min-h-screen">
         <HabitProvider>
-          {children}
+          <FileStorageProvider>
+            {children}
+          </FileStorageProvider>
         </HabitProvider>
       </body>
     </html>

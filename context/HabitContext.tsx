@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { Habit, Area, HabitEntry, EntryStatus, ViewMode, Theme } from '@/lib/types';
 import {
   getHabits,
@@ -39,6 +39,10 @@ interface HabitContextType {
   // Entry actions
   toggleEntry: (habitId: string, date: Date) => void;
   getEntryStatus: (habitId: string, date: Date) => EntryStatus;
+
+  // Data sync
+  loadData: (habits: Habit[], areas: Area[], entries: HabitEntry[]) => void;
+  onDataChange: (callback: (habits: Habit[], areas: Area[], entries: HabitEntry[]) => void) => () => void;
 }
 
 const HabitContext = createContext<HabitContextType | null>(null);
@@ -50,6 +54,9 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   const [viewMode, setViewMode] = useState<ViewMode>('quick');
   const [theme, setThemeState] = useState<Theme>('light');
   const [isLoaded, setIsLoaded] = useState(false);
+
+  // Data change subscribers
+  const dataChangeCallbacksRef = useRef<Set<(habits: Habit[], areas: Area[], entries: HabitEntry[]) => void>>(new Set());
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -100,6 +107,30 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoaded) saveEntries(entries);
   }, [entries, isLoaded]);
+
+  // Notify subscribers when data changes
+  useEffect(() => {
+    if (isLoaded) {
+      dataChangeCallbacksRef.current.forEach(callback => {
+        callback(habits, areas, entries);
+      });
+    }
+  }, [habits, areas, entries, isLoaded]);
+
+  // Load data from external source (e.g., file)
+  const loadData = useCallback((newHabits: Habit[], newAreas: Area[], newEntries: HabitEntry[]) => {
+    setHabits(newHabits);
+    setAreas(newAreas);
+    setEntries(newEntries);
+  }, []);
+
+  // Subscribe to data changes
+  const onDataChange = useCallback((callback: (habits: Habit[], areas: Area[], entries: HabitEntry[]) => void) => {
+    dataChangeCallbacksRef.current.add(callback);
+    return () => {
+      dataChangeCallbacksRef.current.delete(callback);
+    };
+  }, []);
 
   // Habit actions
   const addHabit = useCallback((habit: Omit<Habit, 'id' | 'createdAt' | 'order'>) => {
@@ -270,6 +301,8 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         reorderAreas,
         toggleEntry,
         getEntryStatus,
+        loadData,
+        onDataChange,
       }}
     >
       {children}
